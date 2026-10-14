@@ -1,0 +1,10 @@
+bin/
+obj/
+.vs/
+.idea/
+*.user
+*.suo
+GamePath.local.props
+*.dll
+*.pdb
+release/*.zip
