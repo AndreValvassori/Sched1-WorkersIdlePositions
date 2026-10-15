@@ -30,6 +30,18 @@ dotnet build WorkersPlaces.csproj -c Release
 
 Output: `bin/Release/net6.0/WorkersPlaces.dll`.
 
+## Package version 0.2.0
+
+Close Schedule I, then run the release script from this folder:
+
+```powershell
+pwsh -NoProfile -File .\release.ps1
+```
+
+It builds Release, deploys `WorkersPlaces.dll` to the local game's `Mods` folder, and creates `release/WorkersPlaces-0.2.0.zip`. The ZIP contains `Mods/WorkersPlaces.dll` and a plain-text `README.txt`, so recipients can extract it into their Schedule I folder. The same DLL and README are also available separately under `release/Mods/WorkersPlaces.dll` and `release/README.txt`.
+
+Use `pwsh -NoProfile -File .\release.ps1 -NoDeploy` to build and package without changing the installed game. The script checks that the project, mod attribute, and README versions match. Edit the source `README.txt` for changes to the bundled instructions.
+
 ## Install and verify
 
 Close the game, then build and copy only the mod DLL into the game's `Mods` directory:
@@ -58,13 +70,15 @@ A successful build alone does not prove that the mod loads in the game. Restart 
 
 ## Using the mod
 
-Open the management clipboard with exactly one botanist, chemist, cleaner, or packager selected. A small **Idle position** panel beside the clipboard shows **Default** or **Custom**. Click **Set** or **Change**; a top-center prompt appears while you walk to the spot where the worker should wait. Face the direction the worker should face and press **Space**. Press Escape or right-click to cancel without changing the saved position. Use **Clear** to restore the game's normal waiting destination.
+Open the management clipboard with exactly one botanist, chemist, cleaner, or packager selected. A small **Idle position** panel beside the clipboard shows **Default** or **Custom**. Click **Set** or **Change**; a top-center prompt appears while you walk to the spot where the worker should wait. Face the direction the worker should face and press **Space** to save the idle spot, teleport the worker there immediately, and turn them to face the same direction. Press Escape or right-click to cancel without changing the saved position or moving the worker. Use **Clear** to restore the game's normal waiting destination.
 
-Only the host can edit idle positions. Other workers and their active jobs remain unaffected. The game still controls jobs, sleep, and other non-idle behavior. A custom position outside the worker's property is allowed. This version records the player's position directly; it does not verify that the worker can reach it. If the worker cannot get there, use **Change** or **Clear**.
+Placement also works while the worker is doing a job. Teleporting does not cancel that job, so the worker may walk away to continue working. **Clear** removes the saved idle destination but does not move the worker back.
+
+Only the host can edit idle positions and teleport workers during placement. Other workers remain unaffected. The game still controls jobs, sleep, and other non-idle behavior. A custom position outside the worker's property is allowed. **Set** and **Change** record the player's position directly; the mod does not verify that the worker can reach it. Teleporting a worker into a place such as the RV does not add a navigation path, change their property assignment, or guarantee they can work or stay there. If the worker cannot navigate from the spot, use **Change** to save and teleport them to a reachable spot, or use **Clear**.
 
 Settings store position and facing direction per game save under `UserData/WorkersPlaces` in the game folder and are keyed by the worker's persistent GUID. Positions saved by earlier builds have no facing direction; use **Change** and press **Space** again to capture it. Clearing a worker's position removes that override; firing a worker removes its saved entry. The mod never changes the game's own save files. If a settings file is malformed, the mod preserves it and logs a warning instead of overwriting it.
 
-The idle controls follow the game's worker configuration panel but sit beside it on a paper-and-wood card, using the clipboard's font. Because the card sits outside the game's normal clipboard hit area, the mod checks clicks against its two button rectangles only while that clipboard is open. If the panel cannot be found, the earlier on-screen controls remain available as a fallback. Runtime placement, UI alignment, job transitions, save reload, and co-op behavior still require in-game verification on the installed game version.
+The idle controls follow the game's worker configuration panel but sit beside it on a paper-and-wood card, using the clipboard's font. Because the card sits outside the game's normal clipboard hit area, the mod checks clicks against its button rectangles only while that clipboard is open. If the panel cannot be found, on-screen controls remain available as a fallback. Runtime teleporting, UI alignment, job transitions, save reload, and co-op behavior still require in-game verification on the installed game version.
 
 While the clipboard is closed, the mod does not scan all workers or calculate navigation paths on a timer. Placement does not run navigation checks.
 

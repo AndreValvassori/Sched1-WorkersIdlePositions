@@ -17,12 +17,12 @@ To uninstall, close the game and remove `Mods/WorkersPlaces.dll`. Your saved idl
 ## Main features
 
 - **Per-worker idle spots:** Configure each worker independently, or leave them on the game's default behavior.
-- **Simple placement:** Select one worker on the management clipboard, then use the **Idle position** panel beside it. Choose **Set** or **Change**, walk to the desired spot, face the direction you want the worker to face, and press **Space**.
+- **Simple placement and teleport:** Select one worker on the management clipboard, then use the **Idle position** panel beside it. Choose **Set** or **Change**, walk to the desired spot, face the direction you want the worker to face, and press **Space** to save the spot, teleport the worker there, and turn them to face the same direction. This also works during a job, but the worker may leave to continue that job.
 - **Easy cancellation and reset:** Press **Escape** or right-click to cancel placement. Choose **Clear** to restore that worker's default idle position.
 - **Persistent settings:** The mod saves each worker's position and facing direction per game save, without modifying the game's save files.
 - **Less unnecessary walking:** A well-placed idle spot can keep workers closer to their next task.
 
-**Placement tip:** Choose a spot the worker can actually reach. The mod does not verify a path before saving; if a worker cannot reach a chosen spot, use **Change** or **Clear**.
+**Placement tip:** Choose a spot the worker can actually reach. The mod does not verify a path before saving or teleporting. Teleporting a worker inside the RV does not create an NPC route into it or change their property assignment, so it may not fix work or navigation there. If a worker cannot use a chosen spot, use **Change** to save and teleport them to a reachable spot, or use **Clear**.
 
 ## Requirements
 

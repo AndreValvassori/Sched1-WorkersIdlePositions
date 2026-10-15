@@ -8,7 +8,7 @@ using Il2CppScheduleOne.Tools;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(WorkersPlaces.Mod), "WorkersPlaces", "0.1.0", "AndreValvassori")]
+[assembly: MelonInfo(typeof(WorkersPlaces.Mod), "WorkersPlaces", "0.2.0", "AndreValvassori")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace WorkersPlaces;
@@ -80,35 +80,7 @@ public sealed class Mod : MelonMod
         }
         else if (Input.GetKeyDown(KeyCode.Space) && _placingWorker != null)
         {
-            try
-            {
-                Player? player = Player.Local;
-                if (player == null)
-                {
-                    SetPlacementMessage("Player is not ready. Try again in a moment.");
-                    return;
-                }
-
-                Vector3 position = player.PlayerBasePosition;
-                float yaw = player.CameraRotation.eulerAngles.y;
-                Guid workerId = GetWorkerId(_placingWorker);
-                if (WorkerPositions.Set(workerId, new WorkerPosition(position.x, position.y, position.z, yaw)))
-                {
-                    _hasSavedPositions = true;
-                    ApplyOverride(_placingWorker);
-                    LoggerInstance.Msg($"Idle position set for {_placingWorker.FullName}.");
-                    FinishPlacement();
-                }
-                else
-                {
-                    SetPlacementMessage("Could not save position. Check the MelonLoader log.");
-                }
-            }
-            catch (Exception exception)
-            {
-                LoggerInstance.Error($"Could not set idle position: {exception}");
-                SetPlacementMessage("Could not save position. Check the MelonLoader log.");
-            }
+            SaveAndTeleportPlacement();
         }
     }
 
@@ -405,7 +377,7 @@ public sealed class Mod : MelonMod
         }
         _placingWorker = worker;
         _placing = true;
-        SetPlacementMessage("Stand at idle spot, face desired direction, press Space");
+        SetPlacementMessage("Stand at idle spot, face direction, press Space to save + TP");
         try
         {
             _placementPrompt = PlacementPrompt.TryCreate(_equippable.OverrideText, _placementMessage);
@@ -430,6 +402,81 @@ public sealed class Mod : MelonMod
         {
             BeginPlacement(_selectedWorker);
         }
+    }
+
+    private void SaveAndTeleportPlacement()
+    {
+        if (!InstanceFinder.IsServer || _placingWorker == null || _savePath == null)
+        {
+            SetPlacementMessage("Save or host is not ready. Try again in a moment.");
+            return;
+        }
+
+        Player? player = Player.Local;
+        Employee worker = _placingWorker;
+        var movement = worker.Movement;
+        if (player == null || worker.Fired || movement == null)
+        {
+            SetPlacementMessage("Player or worker is not ready. Try again in a moment.");
+            return;
+        }
+
+        Guid workerId = Guid.Empty;
+        bool hadPrevious = false;
+        WorkerPosition previous = default;
+        bool saved = false;
+        try
+        {
+            workerId = GetWorkerId(worker);
+            Vector3 position = player.PlayerBasePosition;
+            float yaw = player.CameraRotation.eulerAngles.y;
+            hadPrevious = WorkerPositions.TryGet(workerId, out previous);
+            if (!WorkerPositions.Set(workerId, new WorkerPosition(position.x, position.y, position.z, yaw)))
+            {
+                SetPlacementMessage("Could not save position. Check the MelonLoader log.");
+                return;
+            }
+
+            saved = true;
+            _hasSavedPositions = true;
+            ApplyOverride(worker);
+            Quaternion rotation = Quaternion.Euler(0f, yaw, 0f);
+            movement.Warp(position, rotation);
+            worker.transform.rotation = rotation;
+            movement.FaceDirection(rotation * Vector3.forward, 0.1f);
+            LoggerInstance.Msg($"Idle position set and teleport sent for {worker.FullName}, facing {yaw:0.#} degrees.");
+        }
+        catch (Exception exception)
+        {
+            LoggerInstance.Error($"Could not set and teleport idle position: {exception}");
+            if (saved)
+            {
+                try
+                {
+                    if (hadPrevious)
+                    {
+                        WorkerPositions.Set(workerId, previous);
+                        ApplyOverride(worker);
+                    }
+                    else
+                    {
+                        WorkerPositions.Clear(workerId);
+                        RestoreOverride(workerId);
+                    }
+
+                    _hasSavedPositions = WorkerPositions.HasAny;
+                }
+                catch (Exception rollbackException)
+                {
+                    LoggerInstance.Error($"Could not restore the previous idle position: {rollbackException}");
+                }
+            }
+
+            SetPlacementMessage("Could not save and teleport worker. Check the MelonLoader log.");
+            return;
+        }
+
+        FinishPlacement();
     }
 
     private void ClearSelectedPosition()
