@@ -119,6 +119,18 @@ internal sealed class ClipboardIdleControls
             return;
         }
 
+        if (_root == null || !_root.activeInHierarchy || _setButton == null || _clearButton == null)
+        {
+            return;
+        }
+
+        RectTransform? setRect = _setButton.GetComponent<RectTransform>();
+        RectTransform? clearRect = _clearButton.GetComponent<RectTransform>();
+        if (setRect == null || clearRect == null)
+        {
+            return;
+        }
+
         Canvas? canvas = _root.GetComponentInParent<Canvas>();
         Camera? eventCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
             ? canvas.worldCamera ?? fallbackCamera
@@ -126,11 +138,11 @@ internal sealed class ClipboardIdleControls
         Vector3 mousePosition = Input.mousePosition;
         Vector2 pointerPosition = new(mousePosition.x, mousePosition.y);
 
-        if (RectTransformUtility.RectangleContainsScreenPoint((RectTransform)_setButton.transform, pointerPosition, eventCamera))
+        if (RectTransformUtility.RectangleContainsScreenPoint(setRect, pointerPosition, eventCamera))
         {
             _setAction();
         }
-        else if (_lastHasPosition.GetValueOrDefault() && RectTransformUtility.RectangleContainsScreenPoint((RectTransform)_clearButton.transform, pointerPosition, eventCamera))
+        else if (_lastHasPosition.GetValueOrDefault() && RectTransformUtility.RectangleContainsScreenPoint(clearRect, pointerPosition, eventCamera))
         {
             _clearAction();
         }

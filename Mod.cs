@@ -8,7 +8,7 @@ using Il2CppScheduleOne.Tools;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(WorkersPlaces.Mod), "WorkersPlaces", "0.2.0", "AndreValvassori")]
+[assembly: MelonInfo(typeof(WorkersPlaces.Mod), "WorkersPlaces", "0.3.0", "AndreValvassori")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace WorkersPlaces;

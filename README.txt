@@ -1,4 +1,4 @@
-WorkersPlaces 0.2.0
+WorkersPlaces 0.3.0
 Schedule I worker idle positions
 
 INSTALL

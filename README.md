@@ -30,7 +30,7 @@ dotnet build WorkersPlaces.csproj -c Release
 
 Output: `bin/Release/net6.0/WorkersPlaces.dll`.
 
-## Package version 0.2.0
+## Package a release
 
 Close Schedule I, then run the release script from this folder:
 
@@ -38,9 +38,9 @@ Close Schedule I, then run the release script from this folder:
 pwsh -NoProfile -File .\release.ps1
 ```
 
-It builds Release, deploys `WorkersPlaces.dll` to the local game's `Mods` folder, and creates `release/WorkersPlaces-0.2.0.zip`. The ZIP contains `Mods/WorkersPlaces.dll` and a plain-text `README.txt`, so recipients can extract it into their Schedule I folder. The same DLL and README are also available separately under `release/Mods/WorkersPlaces.dll` and `release/README.txt`.
+Each run increments the minor version and resets the patch to zero: `0.2.0` becomes `0.3.0`, then `0.4.0`. It updates the project, MelonInfo attribute, and bundled README together, builds Release, deploys `WorkersPlaces.dll` to the local game's `Mods` folder, and creates `release/WorkersPlaces-<version>.zip`. The ZIP contains `Mods/WorkersPlaces.dll` and a plain-text `README.txt`, so recipients can extract it into their Schedule I folder. The same DLL and README are also available separately under `release/Mods/WorkersPlaces.dll` and `release/README.txt`.
 
-Use `pwsh -NoProfile -File .\release.ps1 -NoDeploy` to build and package without changing the installed game. The script checks that the project, mod attribute, and README versions match. Edit the source `README.txt` for changes to the bundled instructions.
+Use `pwsh -NoProfile -File .\release.ps1 -NoDeploy` to increment the version, build, and package without changing the installed game. The script checks that the project, mod attribute, and README versions match before updating them, and restores their previous contents if the release fails. A deployment or packaging failure may still leave build artifacts or an installed DLL from the attempted version. Ordinary `build.ps1` builds and deploys the current version without incrementing it. Edit the source `README.txt` for changes to the bundled instructions.
 
 ## Install and verify
 
